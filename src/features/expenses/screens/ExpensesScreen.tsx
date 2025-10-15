@@ -21,6 +21,7 @@ export const ExpensesScreen = () => {
   const [sortDir, setSortDir] = React.useState<SortDir>('desc');
 
   const { data = [], isLoading } = useExpensesQuery();
+  console.log("data",data)
   const del = useDeleteExpenseMutation();
 
   const onEdit = (id: string) =>
