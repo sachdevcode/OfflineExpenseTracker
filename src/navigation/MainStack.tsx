@@ -1,10 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeScreen } from '@features/home/screens/HomeScreen';
 import { SettingsScreen } from '@features/settings/screens/SettingsScreen';
 import { ExpensesScreen } from '@features/expenses/screens/ExpensesScreen';
 import { AddEditExpenseScreen } from '@features/expenses/screens/AddEditExpenseScreen';
 import { useTheme } from '@app/providers/ThemeProvider';
+import { Text, TouchableOpacity } from 'react-native';
 
 export type MainStackParamList = {
   Home: undefined;
@@ -34,7 +34,20 @@ export const MainStack = () => {
       <Stack.Screen
         name="Expenses"
         component={ExpensesScreen}
-        options={{ title: 'Expenses' }}
+        options={({ navigation }) => ({
+          title: 'Expenses',
+          headerRight: () => {
+            return (
+              <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                <Text
+                  style={{ color: '#4F46E5', fontSize: 16, fontWeight: '800' }}
+                >
+                  Settings
+                </Text>
+              </TouchableOpacity>
+            );
+          },
+        })}
       />
       <Stack.Screen
         name="AddEditExpense"

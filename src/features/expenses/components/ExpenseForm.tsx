@@ -1,13 +1,18 @@
 import React from 'react';
 import {
-  View,
   Text,
   TextInput,
   StyleSheet,
   Pressable,
   Alert,
 } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  LinearTransition,
+  useSharedValue,
+  withSpring,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import { useTheme } from '@app/providers/ThemeProvider';
 import type { Expense } from '../types';
 import { DateField } from '@shared/components/DateField';
@@ -75,78 +80,161 @@ export const ExpenseForm: React.FC<Props> = ({
     extra,
   ];
 
+  // --- Tiny press-scale animation for buttons ---
+  const saveScale = useSharedValue(1);
+  const cancelScale = useSharedValue(1);
+
+  const saveStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: saveScale.value }],
+  }));
+  const cancelStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cancelScale.value }],
+  }));
+
+  const pressIn = (sv: typeof saveScale) => () => {
+    sv.value = withSpring(0.96, { damping: 18, stiffness: 220 });
+  };
+  const pressOut = (sv: typeof saveScale) => () => {
+    sv.value = withSpring(1, { damping: 18, stiffness: 220 });
+  };
+
+  // stagger helper
+  const enter = (delay: number) =>
+    FadeInDown.duration(180).delay(delay).springify();
+
   return (
-    <Animated.View entering={FadeInDown.duration(180)} style={styles.wrap}>
-      <Text style={[styles.label, { color: theme.colors.text }]}>Title</Text>
-      <TextInput
-        style={inputStyle()}
-        placeholder="E.g., Lunch with client"
-        placeholderTextColor="#888"
-        value={title}
-        onChangeText={setTitle}
-      />
+    <Animated.View
+      entering={FadeInDown.duration(160)}
+      layout={LinearTransition.duration(180)}
+      style={styles.wrap}
+    >
+      {/* Title */}
+      <Animated.View
+        entering={enter(40)}
+        layout={LinearTransition.duration(160)}
+      >
+        <Text style={[styles.label, { color: theme.colors.text }]}>Title</Text>
+        <TextInput
+          style={inputStyle()}
+          placeholder="E.g., Lunch with client"
+          placeholderTextColor="#888"
+          value={title}
+          onChangeText={setTitle}
+        />
+      </Animated.View>
 
-      <Text style={[styles.label, { color: theme.colors.text }]}>Category</Text>
-      <TextInput
-        style={inputStyle()}
-        placeholder="Food / Travel / Bills"
-        placeholderTextColor="#888"
-        value={category}
-        onChangeText={setCategory}
-      />
+      {/* Category */}
+      <Animated.View
+        entering={enter(90)}
+        layout={LinearTransition.duration(160)}
+      >
+        <Text style={[styles.label, { color: theme.colors.text }]}>
+          Category
+        </Text>
+        <TextInput
+          style={inputStyle()}
+          placeholder="Food / Travel / Bills"
+          placeholderTextColor="#888"
+          value={category}
+          onChangeText={setCategory}
+        />
+      </Animated.View>
 
-      <Text style={[styles.label, { color: theme.colors.text }]}>Amount</Text>
-      <TextInput
-        style={inputStyle()}
-        keyboardType="numeric"
-        placeholder="0.00"
-        placeholderTextColor="#888"
-        value={amount}
-        onChangeText={setAmount}
-      />
+      {/* Amount */}
+      <Animated.View
+        entering={enter(140)}
+        layout={LinearTransition.duration(160)}
+      >
+        <Text style={[styles.label, { color: theme.colors.text }]}>Amount</Text>
+        <TextInput
+          style={inputStyle()}
+          keyboardType="numeric"
+          placeholder="0.00"
+          placeholderTextColor="#888"
+          value={amount}
+          onChangeText={setAmount}
+        />
+      </Animated.View>
 
-      <Text style={[styles.label, { color: theme.colors.text }]}>
-        Date (ISO or YYYY-MM-DD)
-      </Text>
+      {/* Date */}
+      <Animated.View
+        entering={enter(190)}
+        layout={LinearTransition.duration(160)}
+      >
+        <Text style={[styles.label, { color: theme.colors.text }]}>
+          Date (ISO or YYYY-MM-DD)
+        </Text>
+        <DateField
+          value={date}
+          onChange={(iso: string) => setDate(iso)}
+          // maximumDate={new Date()} // optional: prevent future dates
+        />
+      </Animated.View>
 
-      <DateField
-        value={date}
-        onChange={(iso: string) => setDate(iso)}
-        // optional: lock future dates if you want
-        // maximumDate={new Date()}
-      />
+      {/* Note */}
+      <Animated.View
+        entering={enter(240)}
+        layout={LinearTransition.duration(160)}
+      >
+        <Text style={[styles.label, { color: theme.colors.text }]}>
+          Note (optional)
+        </Text>
+        <TextInput
+          style={inputStyle({ height: 90, textAlignVertical: 'top' })}
+          multiline
+          placeholder="Add a short note…"
+          placeholderTextColor="#888"
+          value={note}
+          onChangeText={setNote}
+        />
+      </Animated.View>
 
-      <Text style={[styles.label, { color: theme.colors.text }]}>
-        Note (optional)
-      </Text>
-      <TextInput
-        style={inputStyle({ height: 90, textAlignVertical: 'top' })}
-        multiline
-        placeholder="Add a short note…"
-        placeholderTextColor="#888"
-        value={note}
-        onChangeText={setNote}
-      />
+      {/* Buttons */}
+      <Animated.View
+        entering={enter(290)}
+        layout={LinearTransition.duration(160)}
+        style={styles.row}
+      >
+        <Animated.View style={[styles.btnAnimatedWrap, cancelStyle]}>
+          <Pressable
+            onPressIn={pressIn(cancelScale)}
+            onPressOut={pressOut(cancelScale)}
+            onPress={onCancel}
+            style={[styles.btn, styles.secondary]}
+          >
+            <Text style={styles.btnText}>Cancel</Text>
+          </Pressable>
+        </Animated.View>
 
-      <View style={styles.row}>
-        <Pressable onPress={onCancel} style={[styles.btn, styles.secondary]}>
-          <Text style={styles.btnText}>Cancel</Text>
-        </Pressable>
-        <Pressable onPress={handleSubmit} style={[styles.btn, styles.primary]}>
-          <Text style={styles.btnText}>{submitLabel}</Text>
-        </Pressable>
-      </View>
+        <Animated.View style={[styles.btnAnimatedWrap, saveStyle]}>
+          <Pressable
+            onPressIn={pressIn(saveScale)}
+            onPressOut={pressOut(saveScale)}
+            onPress={handleSubmit}
+            style={[styles.btn, styles.primary]}
+          >
+            <Text style={styles.btnText}>{submitLabel}</Text>
+          </Pressable>
+        </Animated.View>
+      </Animated.View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   wrap: { gap: 10 },
-  label: { fontSize: 12, fontWeight: '700', opacity: 0.8 },
+  label: { fontSize: 12, fontWeight: '700', opacity: 0.8, marginBottom: 6 },
   input: { borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 14 },
   row: { flexDirection: 'row', gap: 10, marginTop: 10 },
-  btn: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
-  primary: { backgroundColor: '#2563EB' },
+  btnAnimatedWrap: { flex: 1 ,height:45},
+  btn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primary: { backgroundColor: '#4F46E5' },
   secondary: { backgroundColor: '#4B5563' },
   btnText: { color: '#fff', fontWeight: '800' },
 });

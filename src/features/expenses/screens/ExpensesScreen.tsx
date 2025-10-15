@@ -44,17 +44,19 @@ export const ExpensesScreen = () => {
         }}
       />
 
-      {!isLoading && data.length === 0 ? (
-        <Empty />
-      ) : (
-        <ExpenseList
-          data={data}
-          sortKey={sortKey}
-          sortDir={sortDir}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      )}
+      <View style={{ marginTop: 12 }}>
+        {!isLoading && data.length === 0 ? (
+          <Empty />
+        ) : (
+          <ExpenseList
+            data={data}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        )}
+      </View>
 
       <Pressable
         onPress={() => nav.navigate('AddEditExpense' as never, {} as never)}

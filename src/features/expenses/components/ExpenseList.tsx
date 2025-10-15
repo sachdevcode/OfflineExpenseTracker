@@ -1,5 +1,10 @@
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, ListRenderItemInfo } from 'react-native';
+import Animated, {
+  FadeInDown,
+  FadeOutUp,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { ExpenseItem } from './ExpenseItem';
 import type { Expense, SortKey, SortDir } from '../types';
 
@@ -26,7 +31,6 @@ export const ExpenseList: React.FC<Props> = ({
         const db = new Date(b.date).getTime();
         return sortDir === 'asc' ? da - db : db - da;
       } else {
-        // category
         const ca = a.category.toLowerCase();
         const cb = b.category.toLowerCase();
         const cmp = ca.localeCompare(cb);
@@ -37,9 +41,16 @@ export const ExpenseList: React.FC<Props> = ({
   }, [data, sortKey, sortDir]);
 
   const keyExtractor = React.useCallback((item: Expense) => item.id, []);
+
   const renderItem = React.useCallback(
-    ({ item }: { item: Expense }) => (
-      <ExpenseItem item={item} onEdit={onEdit} onDelete={onDelete} />
+    ({ item, index }: ListRenderItemInfo<Expense>) => (
+      <Animated.View
+        entering={FadeInDown.duration(220).delay(index * 60)}
+        exiting={FadeOutUp.duration(160)}
+        layout={LinearTransition.duration(180)}
+      >
+        <ExpenseItem item={item} onEdit={onEdit} onDelete={onDelete} />
+      </Animated.View>
     ),
     [onEdit, onDelete],
   );
@@ -51,6 +62,10 @@ export const ExpenseList: React.FC<Props> = ({
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       showsVerticalScrollIndicator={false}
+      // Optional: improves list re-order animations
+      removeClippedSubviews
+      initialNumToRender={6}
+      windowSize={9}
     />
   );
 };
