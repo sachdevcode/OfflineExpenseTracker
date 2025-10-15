@@ -25,6 +25,7 @@ export const ExpensesScreen = () => {
 
   const onEdit = (id: string) =>
     nav.navigate('AddEditExpense' as never, { id } as never);
+  
   const onDelete = (id: string) => del.mutate(id);
 
   return (

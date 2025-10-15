@@ -7,6 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ExpenseItem } from './ExpenseItem';
 import type { Expense, SortKey, SortDir } from '../types';
+import { SwipeToDeleteRow } from './SwipeToDeleteRow';
 
 type Props = {
   data: Expense[];
@@ -49,7 +50,12 @@ export const ExpenseList: React.FC<Props> = ({
         exiting={FadeOutUp.duration(160)}
         layout={LinearTransition.duration(180)}
       >
-        <ExpenseItem item={item} onEdit={onEdit} onDelete={onDelete} />
+        <SwipeToDeleteRow
+          id={item.id}
+          onDelete={id => onDelete(id)}
+        >
+          <ExpenseItem item={item} onEdit={onEdit} onDelete={onDelete} />
+        </SwipeToDeleteRow>
       </Animated.View>
     ),
     [onEdit, onDelete],

@@ -161,9 +161,6 @@ export const ExpenseForm: React.FC<Props> = ({
         entering={enter(190)}
         layout={LinearTransition.duration(160)}
       >
-        <Text style={[styles.label, { color: theme.colors.text }]}>
-          Date (ISO or YYYY-MM-DD)
-        </Text>
         <DateField
           value={date}
           onChange={(iso: string) => setDate(iso)}
