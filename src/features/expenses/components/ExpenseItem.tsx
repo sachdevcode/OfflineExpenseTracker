@@ -13,10 +13,9 @@ type Props = {
 
 const BaseItem: React.FC<Props> = ({ item, onEdit, onDelete }) => {
   const { theme } = useTheme();
-  const dateLabel = React.useMemo(
-    () => format(new Date(item.date), 'dd MMM yyyy'),
-    [item.date],
-  );
+
+  const dateLabel = React.useMemo(() => format(new Date(item.date), 'dd MMM yyyy'), [item.date]);
+
 
   return (
     <Animated.View

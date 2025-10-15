@@ -10,6 +10,7 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@app/providers/ThemeProvider';
 import type { Expense } from '../types';
+import { DateField } from '@shared/components/DateField';
 
 type Props = {
   initial?: Partial<Expense>;
@@ -107,12 +108,12 @@ export const ExpenseForm: React.FC<Props> = ({
       <Text style={[styles.label, { color: theme.colors.text }]}>
         Date (ISO or YYYY-MM-DD)
       </Text>
-      <TextInput
-        style={inputStyle()}
-        placeholder={new Date().toISOString()}
-        placeholderTextColor="#888"
+
+      <DateField
         value={date}
-        onChangeText={setDate}
+        onChange={(iso: string) => setDate(iso)}
+        // optional: lock future dates if you want
+        // maximumDate={new Date()}
       />
 
       <Text style={[styles.label, { color: theme.colors.text }]}>
