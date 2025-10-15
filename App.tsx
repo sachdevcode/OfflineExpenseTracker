@@ -4,12 +4,15 @@ enableScreens();
 
 import React from 'react';
 import { ThemeProvider } from '@app/providers/ThemeProvider';
+import { QueryProvider } from '@app/providers/QueryProvider';
 import { RootNavigation } from '@navigation/index';
 
 export default function App() {
   return (
     <ThemeProvider>
-      <RootNavigation />
+      <QueryProvider>
+        <RootNavigation />
+      </QueryProvider>
     </ThemeProvider>
   );
 }
