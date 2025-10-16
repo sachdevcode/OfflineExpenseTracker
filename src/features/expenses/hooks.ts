@@ -3,6 +3,8 @@ import { useExpenseStore } from './store';
 import type { Expense } from './types';
 import { queryClient } from '@app/providers/QueryProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useBudgetStore } from '@features/budget/store';
+import { checkBudgetViolations } from '@features/budget/utils/budgetUtils';
 
 const QK = {
   all: ['expenses'] as const,
@@ -45,9 +47,20 @@ export const useExpensesQuery = () => {
 
 export const useAddExpenseMutation = () => {
   const add = useExpenseStore(s => s.add);
+  const addAlert = useBudgetStore(s => s.addAlert);
+  const budgets = useBudgetStore(s => s.budgets);
+  const expenses = useExpenseStore(s => s.expenses);
+
   return useMutation({
     mutationFn: async (e: Expense) => {
       await add(e); // store persist handles AsyncStorage
+      
+      // Check for budget violations and create alerts
+      const violations = checkBudgetViolations(budgets, expenses, e);
+      violations.forEach(violation => {
+        addAlert(violation);
+      });
+      
       await new Promise<void>(resolve => setTimeout(resolve, 50)); // async simulation
       return e;
     },

@@ -7,12 +7,15 @@ import { ExpensesScreen } from '@features/expenses/screens/ExpensesScreen';
 import { SettingsScreen } from '@features/settings/screens/SettingsScreen';
 import { AddEditExpenseScreen } from '@features/expenses/screens/AddEditExpenseScreen';
 import { AnalyticsScreen } from '@features/analytics/screens/AnalyticsScreen';
+import { BudgetSettingsScreen, AddEditBudgetScreen } from '@features/budget';
 
 export type DrawerParamList = {
   Expenses: undefined;
   Settings: undefined;
   AddEditExpense: { id?: string } | undefined;
   Analytics: undefined;
+  BudgetSettings: undefined;
+  AddEditBudget: { budget?: any } | undefined;
 };
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -66,10 +69,28 @@ export const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
+        name="BudgetSettings"
+        component={BudgetSettingsScreen}
+        options={{
+          title: 'Budget Settings',
+          drawerIcon: ({ color, size }) => (
+            <Icon name="budget" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="AddEditExpense"
         component={AddEditExpenseScreen}
         options={{
           title: 'Expense',
+          drawerItemStyle: { display: 'none' }, // Hide from drawer menu
+        }}
+      />
+      <Drawer.Screen
+        name="AddEditBudget"
+        component={AddEditBudgetScreen}
+        options={{
+          title: 'Budget',
           drawerItemStyle: { display: 'none' }, // Hide from drawer menu
         }}
       />
@@ -84,6 +105,7 @@ const Icon = ({ name, size, color }: { name: string; size: number; color: string
       case 'receipt': return '📄';
       case 'settings': return '⚙️';
       case 'analytics': return '📊';
+      case 'budget': return '💰';
       default: return '📄';
     }
   };

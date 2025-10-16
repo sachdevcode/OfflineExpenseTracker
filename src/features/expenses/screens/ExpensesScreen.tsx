@@ -10,6 +10,7 @@ import { useExpenseStore } from '../store';
 import { SortBar } from '../components/SortBar';
 import { ExpenseList } from '../components/ExpenseList';
 import { Empty } from '../components/Empty';
+import { BudgetOverview } from '@features/budget/components/BudgetOverview';
 // import { StoreDebugger } from '../components/StoreDebugger';
 // import { testAsyncStorage } from '../utils/asyncStorageTest';
 import type { SortKey, SortDir } from '../types';
@@ -46,6 +47,8 @@ export const ExpensesScreen = () => {
       <Text style={[styles.header, { color: theme.colors.text }]}>
         Expenses
       </Text>
+
+      <BudgetOverview />
 
       <SortBar
         sortKey={sortKey}

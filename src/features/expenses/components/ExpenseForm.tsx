@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   Alert,
+  View,
 } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -16,6 +17,10 @@ import Animated, {
 import { useTheme } from '@app/providers/ThemeProvider';
 import type { Expense } from '../types';
 import { DateField } from '@shared/components/DateField';
+import { useCheckBudgetViolations } from '@features/budget/hooks';
+import { checkBudgetViolations } from '@features/budget/utils/budgetUtils';
+import { useBudgetStore } from '@features/budget/store';
+import { useExpenseStore } from '../store';
 
 type Props = {
   initial?: Partial<Expense>;
@@ -46,6 +51,40 @@ export const ExpenseForm: React.FC<Props> = ({
     initial?.date ?? new Date().toISOString(),
   );
   const [note, setNote] = React.useState(initial?.note ?? '');
+  const [budgetWarning, setBudgetWarning] = React.useState<string | null>(null);
+
+  const budgets = useBudgetStore(s => s.budgets);
+  const expenses = useExpenseStore(s => s.expenses);
+
+  // Check budget violations when amount or category changes
+  React.useEffect(() => {
+    const amt = Number(amount);
+    if (category.trim() && !isNaN(amt) && amt > 0) {
+      const newExpense = {
+        title: title.trim(),
+        category: category.trim(),
+        amount: amt,
+        date: new Date(date).toISOString(),
+        note: note.trim() || undefined,
+      };
+      
+      const violations = checkBudgetViolations(budgets, expenses, newExpense);
+      if (violations.length > 0) {
+        const violation = violations[0];
+        if (violation.exceeded) {
+          setBudgetWarning(`⚠️ This will exceed your ${category} budget by $${(violation.spent - violation.budget).toFixed(2)}!`);
+        } else if (violation.percentage >= 90) {
+          setBudgetWarning(`⚠️ This will put you at ${violation.percentage.toFixed(1)}% of your ${category} budget!`);
+        } else {
+          setBudgetWarning(null);
+        }
+      } else {
+        setBudgetWarning(null);
+      }
+    } else {
+      setBudgetWarning(null);
+    }
+  }, [amount, category, budgets, expenses, title, date, note]);
 
   const handleSubmit = () => {
     const amt = Number(amount);
@@ -154,6 +193,13 @@ export const ExpenseForm: React.FC<Props> = ({
           value={amount}
           onChangeText={setAmount}
         />
+        {budgetWarning && (
+          <View style={[styles.warningContainer, { backgroundColor: '#FEF3C7', borderColor: '#F59E0B' }]}>
+            <Text style={[styles.warningText, { color: '#92400E' }]}>
+              {budgetWarning}
+            </Text>
+          </View>
+        )}
       </Animated.View>
 
       {/* Date */}
@@ -222,6 +268,17 @@ const styles = StyleSheet.create({
   wrap: { gap: 10 },
   label: { fontSize: 12, fontWeight: '700', opacity: 0.8, marginBottom: 6 },
   input: { borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 14 },
+  warningContainer: {
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  warningText: {
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
   row: { flexDirection: 'row', gap: 10, marginTop: 10 },
   btnAnimatedWrap: { flex: 1 ,height:45},
   btn: {
