@@ -6,9 +6,12 @@ import {
   useDeleteExpenseMutation,
   useSyncZustandToRQ,
 } from '../hooks';
+import { useExpenseStore } from '../store';
 import { SortBar } from '../components/SortBar';
 import { ExpenseList } from '../components/ExpenseList';
 import { Empty } from '../components/Empty';
+// import { StoreDebugger } from '../components/StoreDebugger';
+// import { testAsyncStorage } from '../utils/asyncStorageTest';
 import type { SortKey, SortDir } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
@@ -21,12 +24,19 @@ export const ExpensesScreen = () => {
   const [sortDir, setSortDir] = React.useState<SortDir>('desc');
 
   const { data = [], isLoading } = useExpensesQuery();
-  console.log("data",data)
+  console.log('data', data);
   const del = useDeleteExpenseMutation();
 
+  const loadExpenses = useExpenseStore(s => s.loadExpenses);
+
+  // Load expenses on component mount
+  React.useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
   const onEdit = (id: string) =>
-    nav.navigate('AddEditExpense' as never, { id } as never);
-  
+    (nav as any).navigate('AddEditExpense', { id });
+
   const onDelete = (id: string) => del.mutate(id);
 
   return (
@@ -46,7 +56,9 @@ export const ExpensesScreen = () => {
         }}
       />
 
-      <View style={{ marginTop: 12 }}>
+      {/* <StoreDebugger /> */}
+
+      <View style={{ marginTop: 12, marginBottom: 40 }}>
         {!isLoading && data.length === 0 ? (
           <Empty />
         ) : (
@@ -61,7 +73,7 @@ export const ExpensesScreen = () => {
       </View>
 
       <Pressable
-        onPress={() => nav.navigate('AddEditExpense' as never, {} as never)}
+        onPress={() => (nav as any).navigate('AddEditExpense', {})}
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
       >
         <Text style={styles.fabText}>＋</Text>

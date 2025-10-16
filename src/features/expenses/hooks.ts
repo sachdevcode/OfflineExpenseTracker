@@ -12,31 +12,34 @@ export const useSyncZustandToRQ = () => {
   // Keep React Query data in sync with store
   useEffect(() => {
     const unsub = useExpenseStore.subscribe(
-      s => s.expenses,
-      expenses => {
-        queryClient.setQueryData(QK.all, expenses);
+      (state) => {
+        console.log('Syncing to RQ - expenses count:', state.expenses.length);
+        queryClient.setQueryData(QK.all, state.expenses);
       },
-      { fireImmediately: true },
     );
     return unsub;
   }, []);
 };
 
 export const useExpensesQuery = () => {
-  const hydrated = useExpenseStore(s => s.hydrated);
+  const expenses = useExpenseStore(s => s.expenses);
 
-  // Query reads from cache; hydration ensures store is ready
+  // Debug logging
+  console.log('useExpensesQuery - expenses count:', expenses.length);
+
+  // Query reads from cache; store handles persistence
   return useQuery<Expense[]>({
     queryKey: QK.all,
     queryFn: async () => {
       // when there's no cache yet, pull from store
       const fromStore = useExpenseStore.getState().expenses;
+      console.log('useExpensesQuery - queryFn - fromStore count:', fromStore.length);
       // Simulate async boundary; RQ expects a promise
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise<void>(resolve => setTimeout(resolve, 50));
       return fromStore;
     },
-    enabled: hydrated, // wait until rehydration
-    initialData: () => useExpenseStore.getState().expenses,
+    initialData: expenses, // Use the current expenses from store
+    staleTime: 1000 * 60 * 5, // 5 minutes - data is fresh for 5 minutes
   });
 };
 
@@ -45,7 +48,7 @@ export const useAddExpenseMutation = () => {
   return useMutation({
     mutationFn: async (e: Expense) => {
       await add(e); // store persist handles AsyncStorage
-      await new Promise(r => setTimeout(r, 50)); // async simulation
+      await new Promise<void>(resolve => setTimeout(resolve, 50)); // async simulation
       return e;
     },
     onSuccess: () => {
@@ -59,7 +62,7 @@ export const useUpdateExpenseMutation = () => {
   return useMutation({
     mutationFn: async (e: Expense) => {
       await update(e);
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise<void>(resolve => setTimeout(resolve, 50));
       return e;
     },
     onSuccess: () => {
@@ -73,7 +76,7 @@ export const useDeleteExpenseMutation = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       await remove(id);
-      await new Promise(r => setTimeout(r, 50));
+      await new Promise<void>(resolve => setTimeout(resolve, 50));
       return id;
     },
     onSuccess: () => {
