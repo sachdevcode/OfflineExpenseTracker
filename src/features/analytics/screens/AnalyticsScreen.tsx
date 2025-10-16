@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useTheme } from '@app/providers/ThemeProvider';
 import { useExpensesQuery, useSyncZustandToRQ } from '@features/expenses/hooks';
+import { SimplePieChart, BarChart } from '../components';
 
 export const AnalyticsScreen = () => {
   const { theme } = useTheme();
@@ -28,20 +29,6 @@ export const AnalyticsScreen = () => {
 
   // Get unique categories
   const categories = [...new Set(expenses.map(expense => expense.category))];
-
-  // Calculate category totals
-  const categoryTotals = categories
-    .map(category => {
-      const categoryExpenses = expenses.filter(
-        expense => expense.category === category,
-      );
-      const total = categoryExpenses.reduce(
-        (sum, expense) => sum + expense.amount,
-        0,
-      );
-      return { category, total, count: categoryExpenses.length };
-    })
-    .sort((a, b) => b.total - a.total);
 
   return (
     <ScrollView
@@ -104,80 +91,25 @@ export const AnalyticsScreen = () => {
         </View>
       </View>
 
-      {/* Category Breakdown */}
+      {/* Category Distribution Pie Chart */}
       <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
         <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-          Category Breakdown
+          Category Distribution
         </Text>
-
-        {categoryTotals.length === 0 ? (
-          <Text style={[styles.emptyText, { color: theme.colors.text }]}>
-            No expenses yet
-          </Text>
-        ) : (
-          categoryTotals.map((item, index) => (
-            <View key={item.category} style={styles.categoryItem}>
-              <View style={styles.categoryLeft}>
-                <View
-                  style={[
-                    styles.categoryDot,
-                    { backgroundColor: getCategoryColor(index) },
-                  ]}
-                />
-                <Text
-                  style={[styles.categoryName, { color: theme.colors.text }]}
-                >
-                  {item.category}
-                </Text>
-              </View>
-              <View style={styles.categoryRight}>
-                <Text
-                  style={[
-                    styles.categoryAmount,
-                    { color: theme.colors.primary },
-                  ]}
-                >
-                  ${item.total.toFixed(2)}
-                </Text>
-                <Text
-                  style={[styles.categoryCount, { color: theme.colors.text }]}
-                >
-                  {item.count} {item.count === 1 ? 'expense' : 'expenses'}
-                </Text>
-              </View>
-            </View>
-          ))
-        )}
+        <SimplePieChart expenses={expenses} />
       </View>
 
-      {/* Coming Soon Section */}
+      {/* Top Categories Bar Chart */}
       <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
         <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-          Coming Soon
+          Top Categories
         </Text>
-        <Text style={[styles.comingSoonText, { color: theme.colors.text }]}>
-          📊 Interactive Charts{'\n'}
-          📈 Monthly Trends{'\n'}
-          💰 Spending Insights{'\n'}
-          🎯 Budget Tracking
-        </Text>
+        <BarChart expenses={expenses} limit={5} />
       </View>
     </ScrollView>
   );
 };
 
-// Simple color palette for categories
-const getCategoryColor = (index: number) => {
-  const colors = [
-    '#4F46E5',
-    '#EF4444',
-    '#10B981',
-    '#F59E0B',
-    '#8B5CF6',
-    '#06B6D4',
-  ];
-  return colors[index % colors.length];
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -236,40 +168,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
-  },
-  categoryItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  categoryLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  categoryDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  categoryName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  categoryRight: {
-    alignItems: 'flex-end',
-  },
-  categoryAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  categoryCount: {
-    fontSize: 12,
-    opacity: 0.7,
   },
   emptyText: {
     fontSize: 16,

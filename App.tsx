@@ -11,11 +11,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <ThemeProvider>
-      <QueryProvider>
-        <RootNavigation />
-      </QueryProvider>
-    </ThemeProvider>
+      <ThemeProvider>
+        <QueryProvider>
+          <RootNavigation />
+        </QueryProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

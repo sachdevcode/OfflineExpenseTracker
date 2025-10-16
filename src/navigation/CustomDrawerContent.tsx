@@ -1,16 +1,15 @@
 import React from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from 'react-native';
-import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
+  DrawerContentScrollView,
+  DrawerContentComponentProps,
+} from '@react-navigation/drawer';
 import { useTheme } from '@app/providers/ThemeProvider';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
+export const CustomDrawerContent: React.FC<
+  DrawerContentComponentProps
+> = props => {
   const { theme } = useTheme();
   const { navigation, state } = props;
 
@@ -35,93 +34,144 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
     },
   ];
 
-  const handleNavigation = (routeName: string) => {
-    navigation.navigate(routeName as never);
-  };
+  const isActiveRoute = (routeName: string) =>
+    state.routeNames[state.index] === routeName;
 
-  const isActiveRoute = (routeName: string) => {
-    return state.routeNames[state.index] === routeName;
-  };
+  const handleNavigation = (routeName: string) =>
+    navigation.navigate(routeName as never);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.card }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      edges={['top', 'bottom']}
+    >
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
-            Expense Tracker
-          </Text>
-          <Text style={[styles.headerSubtitle, { color: theme.colors.text }]}>
-            Manage your finances
-          </Text>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: theme.colors.card,
+              borderBottomColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={[styles.avatar]}>
+            <Text style={styles.avatarText}>💸</Text>
+          </View>
+          <View style={styles.headerTextWrap}>
+            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+              Expense Tracker
+            </Text>
+            <Text
+              style={[
+                styles.headerSubtitle,
+                { color: theme.colors.text, opacity: 0.65 },
+              ]}
+            >
+              Manage your finances
+            </Text>
+          </View>
         </View>
+
+        {/* Section label */}
+        <Text
+          style={[
+            styles.sectionLabel,
+            { color: theme.colors.text, opacity: 0.55 },
+          ]}
+        >
+          Navigation
+        </Text>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          {menuItems.map((item) => {
-            const isActive = isActiveRoute(item.route);
+          {menuItems.map(item => {
+            const active = isActiveRoute(item.route);
             return (
-              <TouchableOpacity
+              <Pressable
                 key={item.route}
-                style={[
+                onPress={() => handleNavigation(item.route)}
+                style={() => [
                   styles.menuItem,
                   {
-                    backgroundColor: isActive ? theme.colors.primary + '20' : 'transparent',
-                    borderLeftColor: isActive ? theme.colors.primary : 'transparent',
+                    borderColor: active
+                      ? theme.colors.primary
+                      : theme.colors.border,
                   },
                 ]}
-                onPress={() => handleNavigation(item.route)}
-                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                accessibilityLabel={`${item.name}. ${item.description}`}
               >
-                <View style={styles.menuItemContent}>
-                  <View style={styles.menuItemLeft}>
-                    <Text style={[styles.menuIcon, { opacity: isActive ? 1 : 0.7 }]}>
-                      {item.icon}
-                    </Text>
-                    <View style={styles.menuTextContainer}>
-                      <Text
-                        style={[
-                          styles.menuTitle,
-                          {
-                            color: isActive ? theme.colors.primary : theme.colors.text,
-                            fontWeight: isActive ? '700' : '600',
-                          },
-                        ]}
-                      >
-                        {item.name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.menuDescription,
-                          { color: theme.colors.text, opacity: 0.6 },
-                        ]}
-                      >
-                        {item.description}
-                      </Text>
-                    </View>
-                  </View>
-                  {isActive && (
-                    <View
+                {/* Left: icon + text */}
+                <View style={styles.menuLeft}>
+                  <Text
+                    style={[styles.menuIcon, { opacity: active ? 1 : 0.85 }]}
+                  >
+                    {item.icon}
+                  </Text>
+                  <View style={styles.menuTextCol}>
+                    <Text
                       style={[
-                        styles.activeIndicator,
-                        { backgroundColor: theme.colors.primary },
+                        styles.menuTitle,
+                        {
+                          color: active
+                            ? theme.colors.primary
+                            : theme.colors.text,
+                        },
                       ]}
-                    />
-                  )}
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.menuDesc,
+                        { color: theme.colors.text, opacity: 0.55 },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.description}
+                    </Text>
+                  </View>
                 </View>
-              </TouchableOpacity>
+
+                {/* Right: active pill */}
+                {active && (
+                  <View
+                    style={[
+                      styles.activePill,
+                      { backgroundColor: theme.colors.primary },
+                    ]}
+                  />
+                )}
+              </Pressable>
             );
           })}
         </View>
       </DrawerContentScrollView>
 
       {/* Footer */}
-      <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
-        <Text style={[styles.footerText, { color: theme.colors.text, opacity: 0.6 }]}>
+      <View
+        style={[
+          styles.footer,
+          {
+            borderTopColor: theme.colors.border,
+            backgroundColor: theme.colors.card,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.footerText,
+            { color: theme.colors.text, opacity: 0.6 },
+          ]}
+        >
           Version 1.0.0
         </Text>
       </View>
@@ -130,69 +180,84 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
+  container: { flex: 1 },
+  scrollContent: { flexGrow: 1 },
+
   header: {
-    padding: 20,
-    paddingBottom: 30,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    opacity: 0.7,
-  },
-  menuContainer: {
     paddingHorizontal: 16,
+    paddingVertical: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  avatarText: { fontSize: 22 },
+  headerTextWrap: { flex: 1 },
+  headerTitle: { fontSize: 18, fontWeight: '800' },
+  headerSubtitle: { fontSize: 12, marginTop: 2 },
+
+  sectionLabel: {
+    marginTop: 14,
+    marginBottom: 6,
+    paddingHorizontal: 16,
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+
+  menuContainer: { paddingHorizontal: 12, paddingTop: 4, gap: 8 },
   menuItem: {
-    marginBottom: 8,
+    borderWidth: 1,
     borderRadius: 12,
-    borderLeftWidth: 4,
-  },
-  menuItemContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
   },
-  menuItemLeft: {
+  menuLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  menuIcon: { fontSize: 18, marginRight: 12 },
+  menuTextCol: { flex: 1, minWidth: 0 },
+  menuTitle: { fontSize: 15, fontWeight: '700' },
+  menuDesc: { fontSize: 12 },
+
+  activePill: { width: 8, height: 8, borderRadius: 4 },
+
+  themeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  menuIcon: {
-    fontSize: 20,
-    marginRight: 16,
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderRadius: 999,
   },
-  menuTextContainer: {
-    flex: 1,
+  chipText: { fontWeight: '700', fontSize: 12 },
+
+  quickToggle: {
+    marginLeft: 'auto',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
   },
-  menuTitle: {
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  menuDescription: {
-    fontSize: 12,
-  },
-  activeIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
+
   footer: {
-    padding: 20,
-    borderTopWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
-  footerText: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
+  footerText: { fontSize: 12, textAlign: 'center' },
 });
