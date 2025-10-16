@@ -46,9 +46,9 @@ export const ExpenseList: React.FC<Props> = ({
   const renderItem = React.useCallback(
     ({ item, index }: ListRenderItemInfo<Expense>) => (
       <Animated.View
-        entering={FadeInDown.duration(220).delay(index * 60)}
-        exiting={FadeOutUp.duration(160)}
-        layout={LinearTransition.duration(180)}
+        entering={FadeInDown.duration(300).delay(index * 50)}
+        exiting={FadeOutUp.duration(300)}
+        layout={LinearTransition.duration(300)}
       >
         <SwipeToDeleteRow
           id={item.id}
@@ -68,10 +68,12 @@ export const ExpenseList: React.FC<Props> = ({
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       showsVerticalScrollIndicator={false}
-      // Optional: improves list re-order animations
-      removeClippedSubviews
-      initialNumToRender={6}
-      windowSize={9}
+      // Optimize for smooth animations
+      removeClippedSubviews={false}
+      initialNumToRender={8}
+      windowSize={8}
+      maxToRenderPerBatch={3}
+      updateCellsBatchingPeriod={100}
     />
   );
 };
