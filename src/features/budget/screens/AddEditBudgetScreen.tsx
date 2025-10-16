@@ -172,7 +172,8 @@ export const AddEditBudgetScreen = () => {
           </View>
         </View>
 
-        <View style={styles.infoBox}>
+        <View style={[styles.infoBox,{ backgroundColor: theme.colors.card,
+          borderColor: theme.colors.border,}]}>
           <Text style={[styles.infoText, { color: theme.colors.text }]}>
             💡 You'll receive notifications when you approach or exceed your budget limit.
           </Text>
@@ -264,6 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
+    borderWidth:0.5
   },
   infoText: {
     fontSize: 14,

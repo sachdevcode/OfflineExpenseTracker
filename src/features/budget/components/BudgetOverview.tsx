@@ -2,7 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '@app/providers/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
-import { useBudgetsQuery, useBudgetAlertsQuery, useSyncBudgetToRQ } from '../hooks';
+import {
+  useBudgetsQuery,
+  useBudgetAlertsQuery,
+  useSyncBudgetToRQ,
+} from '../hooks';
 import { getAllBudgetStatuses } from '../utils/budgetUtils';
 import { useExpenseStore } from '@features/expenses/store';
 
@@ -17,14 +21,25 @@ export const BudgetOverview: React.FC = () => {
 
   if (budgets.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.card }]}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.colors.card,
+            borderColor: theme.colors.border,
+          },
+        ]}
+      >
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.text }]}>
             Budget Tracking
           </Text>
           <Pressable
             onPress={() => (nav as any).navigate('BudgetSettings')}
-            style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
+            style={[
+              styles.addButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
           >
             <Text style={styles.addButtonText}>+ Add Budget</Text>
           </Pressable>
@@ -38,7 +53,9 @@ export const BudgetOverview: React.FC = () => {
 
   const budgetStatuses = getAllBudgetStatuses(budgets, expenses);
   const exceededBudgets = budgetStatuses.filter(status => status.exceeded);
-  const warningBudgets = budgetStatuses.filter(status => status.status === 'warning' || status.status === 'danger');
+  const warningBudgets = budgetStatuses.filter(
+    status => status.status === 'warning' || status.status === 'danger',
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.card }]}>
@@ -50,32 +67,53 @@ export const BudgetOverview: React.FC = () => {
           onPress={() => (nav as any).navigate('BudgetSettings')}
           style={[styles.settingsButton, { borderColor: theme.colors.border }]}
         >
-          <Text style={[styles.settingsButtonText, { color: theme.colors.text }]}>
+          <Text
+            style={[styles.settingsButtonText, { color: theme.colors.text }]}
+          >
             Settings
           </Text>
         </Pressable>
       </View>
 
       {exceededBudgets.length > 0 && (
-        <View style={[styles.alertContainer, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
+        <View
+          style={[
+            styles.alertContainer,
+            { backgroundColor: '#FEF2F2', borderColor: '#FECACA' },
+          ]}
+        >
           <Text style={[styles.alertTitle, { color: '#DC2626' }]}>
-            🚨 {exceededBudgets.length} Budget{exceededBudgets.length > 1 ? 's' : ''} Exceeded
+            🚨 {exceededBudgets.length} Budget
+            {exceededBudgets.length > 1 ? 's' : ''} Exceeded
           </Text>
-          {exceededBudgets.slice(0, 2).map((status) => (
-            <Text key={status.budget.id} style={[styles.alertText, { color: '#DC2626' }]}>
-              • {status.budget.category}: ${status.spent.toFixed(2)} / ${status.budget.amount.toFixed(2)}
+          {exceededBudgets.slice(0, 2).map(status => (
+            <Text
+              key={status.budget.id}
+              style={[styles.alertText, { color: '#DC2626' }]}
+            >
+              • {status.budget.category}: ${status.spent.toFixed(2)} / $
+              {status.budget.amount.toFixed(2)}
             </Text>
           ))}
         </View>
       )}
 
       {warningBudgets.length > 0 && exceededBudgets.length === 0 && (
-        <View style={[styles.alertContainer, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}>
+        <View
+          style={[
+            styles.alertContainer,
+            { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
+          ]}
+        >
           <Text style={[styles.alertTitle, { color: '#D97706' }]}>
-            ⚠️ {warningBudgets.length} Budget{warningBudgets.length > 1 ? 's' : ''} at Risk
+            ⚠️ {warningBudgets.length} Budget
+            {warningBudgets.length > 1 ? 's' : ''} at Risk
           </Text>
-          {warningBudgets.slice(0, 2).map((status) => (
-            <Text key={status.budget.id} style={[styles.alertText, { color: '#D97706' }]}>
+          {warningBudgets.slice(0, 2).map(status => (
+            <Text
+              key={status.budget.id}
+              style={[styles.alertText, { color: '#D97706' }]}
+            >
               • {status.budget.category}: {status.percentage.toFixed(1)}% used
             </Text>
           ))}
@@ -83,10 +121,12 @@ export const BudgetOverview: React.FC = () => {
       )}
 
       <View style={styles.budgetList}>
-        {budgetStatuses.slice(0, 3).map((status) => (
+        {budgetStatuses.slice(0, 3).map(status => (
           <View key={status.budget.id} style={styles.budgetItem}>
             <View style={styles.budgetInfo}>
-              <Text style={[styles.budgetCategory, { color: theme.colors.text }]}>
+              <Text
+                style={[styles.budgetCategory, { color: theme.colors.text }]}
+              >
                 {status.budget.category}
               </Text>
               <Text style={[styles.budgetAmount, { color: theme.colors.text }]}>
@@ -99,9 +139,13 @@ export const BudgetOverview: React.FC = () => {
                   styles.progressBar,
                   {
                     width: `${Math.min(status.percentage, 100)}%`,
-                    backgroundColor: status.exceeded ? '#DC2626' : 
-                                   status.percentage >= 90 ? '#EF4444' : 
-                                   status.percentage >= 75 ? '#F59E0B' : '#10B981',
+                    backgroundColor: status.exceeded
+                      ? '#DC2626'
+                      : status.percentage >= 90
+                      ? '#EF4444'
+                      : status.percentage >= 75
+                      ? '#F59E0B'
+                      : '#10B981',
                   },
                 ]}
               />
@@ -130,7 +174,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#3A3B40',
+    borderColor: '#F3F4F6',
   },
   header: {
     flexDirection: 'row',
