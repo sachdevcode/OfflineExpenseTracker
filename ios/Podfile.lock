@@ -1782,7 +1782,7 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-date-picker (5.0.13):
+  - react-native-date-picker (5.0.12):
     - boost
     - DoubleConversion
     - fast_float
@@ -3087,7 +3087,7 @@ SPEC CHECKSUMS:
   React-logger: 2021eb67660b673cc654635832136fbbf2c79103
   React-Mapbuffer: 9bda44c983f9c683047546a338ebe9a21020babd
   React-microtasksnativemodule: 9b52faf56750d7e3c67d9cf96b650f14c31524c2
-  react-native-date-picker: 8191d29ff17772c771a9a69efc0c4c47a7affeef
+  react-native-date-picker: d4bcb2f05cd74601bad5cbac13b2dfe8effbd69d
   react-native-safe-area-context: 6d8a7b750e496e37bda47c938320bf2c734d441f
   React-NativeModulesApple: 1b4d9722d8df62e881684abadf320e7a8fa1b7f6
   React-oscompat: 80ca388c4831481cd03a6b45ecfc82739ca9a95e
